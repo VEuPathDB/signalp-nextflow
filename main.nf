@@ -59,12 +59,6 @@ process filterInputFastaByResults {
 }
 
 
-
-//[-h] --fastafile FASTAFILE --output_dir OUTPUT_DIR [--format [{txt,png,eps,all,none}]]
-//                                                  [--organism [{eukarya,other,euk}]] [--mode [{fast,slow,slow-sequential}]] [--bsize BSIZE]
-//                                                  [--write_procs WRITE_PROCS] [--torch_num_threads TORCH_NUM_THREADS] [--version] [--skip_resolve]
-
-
 process signalp6 {
     container = 'TODO'
 
@@ -72,7 +66,7 @@ process signalp6 {
     path subsetFasta
 
     output:
-    path "output.gff3", emit: gff
+    path "combined.gff3", emit: gff
 
     script:
     """
@@ -81,6 +75,8 @@ process signalp6 {
         --organism $params.org \
         --mode fast \
         --output_dir .
+
+    fixAndCombineGff.pl --gff output.gff3 --region_gff region_output.gff3 --sp_version 6 --output_file combined.gff3
     """
 }
 
@@ -102,8 +98,7 @@ process signalp4 {
         $subsetFasta >sp4_prediction_summary.txt
 
     # make gff3 format (remove the group column)
-    grep -v '^#' signalp4.gff2 | cut -f 1,2,3,4,5,6,7,8 >signalp4.gff3
-
+    fixAndCombineGff.pl --gff signalp4.gff2 --sp_version 4 --output_file signalp4.gff3
     """
 }
 
@@ -131,8 +126,7 @@ process signalp5 {
         -prefix signalp5 \
         -stdout >sp5_prediction_summary.txt
 
-    grep -v '^#' signalp5.gff3 >subsetFasta.gff3
-
+    fixAndCombineGff.pl --gff signalp5.gff3 --sp_version 5 --output_file subsetFasta.gff3
     """
 }
 
