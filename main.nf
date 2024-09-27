@@ -60,7 +60,7 @@ process filterInputFastaByResults {
 
 
 process signalp6 {
-    container = 'TODO'
+    label = "signalp"
 
     input:
     path subsetFasta
@@ -82,7 +82,7 @@ process signalp6 {
 
 
 process signalp4 {
-    container = 'TODO'
+    label = "signalp"
 
     input:
     path subsetFasta
@@ -106,7 +106,7 @@ process signalp4 {
 
 
 process signalp5 {
-    container = 'TODO'
+    label = "signalp"
 
     input:
     path subsetFasta
