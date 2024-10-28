@@ -72,7 +72,7 @@ process signalp6 {
     """
     signalp6 --fastafile $subsetFasta \
         --format none \
-        --organism $params.org \
+        --organism ${task.ext.org} \
         --mode fast \
         --output_dir .
 
