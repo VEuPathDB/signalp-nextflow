@@ -93,7 +93,7 @@ process signalp4 {
     script:
     """
     signalp4  -f short \
-        -t $params.org \
+        -t ${task.ext.org} \
         -n signalp4.gff2 \
         $subsetFasta >sp4_prediction_summary.txt
 
@@ -121,7 +121,7 @@ process signalp5 {
     signalp -fasta $subsetFasta \
         -format short \
         -gff3 \
-        -org $params.org \
+        -org ${task.ext.org} \
         -plot 'none' \
         -prefix signalp5 \
         -stdout >sp5_prediction_summary.txt
