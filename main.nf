@@ -27,17 +27,21 @@ workflow {
     filterInputFastaByResults(params.inputFilePath, signalp5.out.pred_summary.collectFile())
 
     // Now that we have our filtered result, we can split it further to run with signalp4 and signalp6
-    filteredSeq = filterInputFastaByResults.out.splitFasta( by:200, file:true )
+    filteredSeq = filterInputFastaByResults.out.fasta.splitFasta( by:200, file:true )
 
     signalp4(filteredSeq)
-    signalp6(filteredSeq)
+    signalp6(filteredSeq, filterInputFastaByResults.out.recordCount.first())
 
     collectedGff = signalp5.out.gff.mix(signalp4.out.gff).mix(signalp6.out.gff).collectFile(name: 'result.gff3')
 
     indexResults(collectedGff)
 }
 
-
+/**
+ NOTE:  there is a potential optimization here.  We could trim the first 70-100 amino acids
+ from the N terminus and get the unique set of results.  (the def line would need to be
+ a list of proteins which match the sequence or map back to proteins in some other way
+*/
 process filterInputFastaByResults {
     container = 'bioperl/bioperl:stable'
 
@@ -46,7 +50,8 @@ process filterInputFastaByResults {
     path predictions
 
     output:
-    path "filtered.fasta"
+    path "filtered.fasta", emit: fasta
+    env recordCount, emit: recordCount
 
     script:
     """
@@ -55,6 +60,9 @@ process filterInputFastaByResults {
         --score_cutoff ${task.ext.filter_score_cutoff} \
         --pct_proteins_cutoff ${task.ext.filter_min_protein_percent_cutoff} \
         --output_file filtered.fasta
+
+
+    recordCount=\$(grep -c "^>" filtered.fasta)
     """
 }
 
@@ -64,9 +72,14 @@ process signalp6 {
 
     input:
     path subsetFasta
+    val recordCount
 
     output:
     path "combined.gff3", emit: gff
+
+
+    when:
+    Integer.parseInt(recordCount) <= task.ext.protein_count_limit
 
     script:
     """
