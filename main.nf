@@ -34,7 +34,7 @@ workflow {
 
     collectedGff = signalp5.out.gff.mix(signalp4.out.gff).mix(signalp6.out.gff).collectFile(name: 'result.gff3')
 
-    indexResults(collectedGff)
+    indexResults(collectedGff, params.outputFileName)
 }
 
 /**
@@ -150,6 +150,7 @@ process indexResults {
 
   input:
     path gff
+    val outputFileName
 
   output:
     path '*.gff.gz'
@@ -157,8 +158,8 @@ process indexResults {
 
   script:
   """
-  sort -k1,1 -k4,4n $gff > sorted.gff
-  bgzip sorted.gff
-  tabix -p gff sorted.gff.gz
+  sort -k1,1 -k4,4n $gff > $outputFileName
+  bgzip $outputFileName
+  tabix -p gff ${outputFileName}.gz
   """
 }
