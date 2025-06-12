@@ -89,6 +89,9 @@ process signalp6 {
         --mode fast \
         --output_dir .
 
+    touch output.gff3
+    touch region_output.gff3
+
     fixAndCombineGff.pl --gff output.gff3 --region_gff region_output.gff3 --sp_version 6 --output_file combined.gff3
     """
 }
@@ -109,6 +112,8 @@ process signalp4 {
         -t ${task.ext.org} \
         -n signalp4.gff2 \
         $subsetFasta >sp4_prediction_summary.txt
+
+    touch signalp4.gff2
 
     # make gff3 format (remove the group column)
     fixAndCombineGff.pl --gff signalp4.gff2 --sp_version 4 --output_file signalp4.gff3
@@ -138,6 +143,8 @@ process signalp5 {
         -plot 'none' \
         -prefix signalp5 \
         -stdout >sp5_prediction_summary.txt
+
+    touch signalp5.gff3
 
     fixAndCombineGff.pl --gff signalp5.gff3 --sp_version 5 --output_file subsetFasta.gff3
     """
