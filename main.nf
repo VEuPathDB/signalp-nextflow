@@ -43,7 +43,7 @@ workflow {
  a list of proteins which match the sequence or map back to proteins in some other way
 */
 process filterInputFastaByResults {
-    container = 'bioperl/bioperl:stable'
+    container 'bioperl/bioperl:stable'
 
     input:
     path fasta
@@ -152,7 +152,7 @@ process signalp5 {
 
 // make this a module??
 process indexResults {
-  container = 'biocontainers/tabix:v1.9-11-deb_cv1'
+  container 'biocontainers/tabix:v1.9-11-deb_cv1'
   publishDir params.outputDir, mode: 'copy'
 
   input:
