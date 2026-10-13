@@ -2,26 +2,20 @@
 nextflow.enable.dsl=2
 
 //--------------------------------------------------------------------------
-// Param Checking
-//--------------------------------------------------------------------------
-
-if(!params.fastaSubsetSize) {
-  throw new Exception("Missing params.fastaSubsetSize")
-}
-
-if(params.inputFilePath) {
-  seqs = Channel.fromPath( params.inputFilePath )
-           .splitFasta( by:params.fastaSubsetSize, file:true  )
-}
-else {
-  throw new Exception("Missing params.inputFilePath")
-}
-
-//--------------------------------------------------------------------------
 // Main Workflow
 //--------------------------------------------------------------------------
 
 workflow {
+    if(!params.fastaSubsetSize) {
+        error "Missing params.fastaSubsetSize"
+    }
+    if(!params.inputFilePath) {
+        error "Missing params.inputFilePath"
+    }
+
+    seqs = channel.fromPath( params.inputFilePath )
+             .splitFasta( by:params.fastaSubsetSize, file:true  )
+
     signalp5(seqs)
 
     filterInputFastaByResults(params.inputFilePath, signalp5.out.pred_summary.collectFile())
@@ -51,7 +45,7 @@ process filterInputFastaByResults {
 
     output:
     path "filtered.fasta", emit: fasta
-    env recordCount, emit: recordCount
+    env "recordCount", emit: recordCount
 
     script:
     """
@@ -68,7 +62,7 @@ process filterInputFastaByResults {
 
 
 process signalp6 {
-    label = "signalp"
+    label 'signalp'
 
     input:
     path subsetFasta
@@ -79,7 +73,7 @@ process signalp6 {
 
 
     when:
-    Integer.parseInt(recordCount) <= task.ext.protein_count_limit
+    recordCount.toInteger() <= task.ext.protein_count_limit
 
     script:
     """
@@ -98,7 +92,7 @@ process signalp6 {
 
 
 process signalp4 {
-    label = "signalp"
+    label 'signalp'
 
     input:
     path subsetFasta
@@ -124,7 +118,7 @@ process signalp4 {
 
 
 process signalp5 {
-    label = "signalp"
+    label 'signalp'
 
     input:
     path subsetFasta
